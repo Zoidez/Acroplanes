@@ -1,0 +1,110 @@
+<html lang="en-US">
+<head>
+	<title>Acroplanes</title>
+	<meta charset="utf-8">
+	<meta name="Keywords" content="Acroplanes, planes, online, multiplayer, HTML5, game, shooter">
+	<meta name="Description" content="An online multiplayer 2d plane shooter.">
+	<!-link rel="icon" href="./favicon.ico" type="image/x-icon">
+	<!-link rel="stylesheet" href="main.css">
+    <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
+    <script src="https://code.createjs.com/tweenjs-0.6.2.min.js"></script>
+</head>
+<body onload="init();">
+    <canvas id="canvas" width="5000" height="5000"></canvas>
+    <script>
+        if('ontouchstart' in document.documentElement) {
+            canvas.addEventListener('touchstart', function(e){
+                handleKeyDown();
+            }, false);
+
+            canvas.addEventListener('touchend', function(e){
+                //handleKeyUp();
+            }, false);
+        } else {
+            document.onkeydown = handleKeyDown;
+            //document.onkeyup = handleKeyUp;
+            document.onmousedown = handleKeyDown;
+            //document.onmouseup = handleKeyUp;
+        }
+        
+        (function(window){
+            function Player(image){
+                this.initialize(image);
+            }
+            Player.prototype = new createjs.Bitmap();
+
+            Player.prototype.Bitmap_initialize = Player.prototype.initialize;
+
+            Player.prototype.initialize = function(image){
+                this.Bitmap_initialize(image);
+                this.name = 'Player';
+                this.snapToPixel = true;
+                this.velocity = {x:0,y:0};
+            }
+
+            Player.prototype.tick = function(){
+                this.velocity.y += 0.5;
+                this.y += this.velocity.y;
+            }
+
+            Player.prototype.reset = function(){
+                this.y = 100;
+                this.velocity.y = -10;
+            }
+            window.Player = Player;
+        } (window));
+        (function(window){
+            function World(ground){
+                this.initialize(ground);
+            }
+            World.prototype = new createjs.Container();
+            
+            World.prototype.container_initialize = World.prototype.initialize;
+            
+            World.prototype.initialize = function(ground) {
+                this.container_initialize();
+                this.name = 'World';
+                this.setBounds(0, 0, 5000, 5000);
+                this.x = 0;
+                this.y = 0;
+                //ground.x = 0;
+                //ground.y = 4500;
+                this.addChild(ground);
+            }
+            World.prototype.tick = function(xVel, yVel){
+                this.x += xVel;
+                this.y += yVel;
+            }
+            window.World = World;
+        } (window));
+        var stage,
+            canvas,
+            hero,
+            ground = new Image();
+        
+        function init() {
+            stage = new createjs.Stage('canvas');
+            
+            ground.onload = onImageLoaded;
+            ground.src = 'img/world_ground.png';
+
+            createjs.Ticker.setFPS(60);
+            createjs.Ticker.addEventListener("tick", tick);
+            function tick(e){
+                //world.tick(0, 0);
+                
+                stage.update(e);
+            }
+        }
+        function onImageLoaded(e){
+            world = new World(ground);
+            ground.x = 0;
+            ground.y = 0;
+            stage.addChild(ground);
+        }
+        function handleKeyDown(e){
+            //hero.reset();
+        }
+    </script>
+</body>
+</html>
