@@ -97,7 +97,8 @@
             }
         }
         function onImageLoaded(e){
-            world = new World(ground);
+            var groundBitmap = new createjs.Bitmap(ground);
+            world = new World(groundBitmap);
             ground.x = 0;
             ground.y = 0;
             stage.addChild(ground);

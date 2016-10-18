@@ -1,0 +1,65 @@
+<html lang="en-US">
+<head>
+	<title>Acroplanes</title>
+	<meta charset="utf-8">
+	<meta name="Keywords" content="Acroplanes, planes, online, multiplayer, HTML5, game, shooter">
+	<meta name="Description" content="An online multiplayer 2d plane shooter.">
+	<!-link rel="icon" href="./favicon.ico" type="image/x-icon">
+	<!-link rel="stylesheet" href="main.css">
+    <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
+    <script src="https://code.createjs.com/tweenjs-0.6.2.min.js"></script>
+</head>
+<body onload="init();" style="margin:0px;">
+    <canvas id="canvas" style="" width="5000" height="4500"></canvas>
+    <script>
+        window.onresize = fixCanvas;
+        var img = new Image();
+        var img2 = new Image();
+        var world = new createjs.Container();
+        function init(){
+            fixCanvas();
+            
+            stage = new createjs.Stage('canvas');
+            img.onload = onImageLoad;
+            img2.onload = onImageLoad2;
+            img.src = "./img/world_ground.png";
+            img2.src = "./img/world_atmosphere.png";
+            
+            world.setBounds(0, 0, 5000, 4500);
+            world.x = 0;
+            world.y = 0;
+            stage.addChild(world);
+            
+            createjs.Ticker.setFPS(60);
+            createjs.Ticker.addEventListener('tick', tick);
+            function tick(e){
+                world.y--;
+                stage.update();
+            }
+        }
+        function onImageLoad(e){
+            var groundShape = new createjs.Shape();
+            groundShape.graphics = new createjs.Graphics();
+            groundShape.graphics.beginBitmapFill(img);
+            groundShape.graphics.drawRect(0, 4000, 5000, 500);
+            
+            world.addChild(groundShape);
+            stage.update();
+        }
+        function onImageLoad2(e){
+            var groundShape = new createjs.Shape();
+            groundShape.graphics = new createjs.Graphics();
+            groundShape.graphics.beginBitmapFill(img2);
+            groundShape.graphics.drawRect(0, 0, 5000, 4001);
+            
+            world.addChild(groundShape);
+            stage.update();
+        }
+        function fixCanvas(){
+            canvas = document.getElementById("canvas");
+            canvas.width = document.body.clientWidth;
+            canvas.height = document.body.clientHeight;
+        }
+    </script>
+</body>
+</html>
