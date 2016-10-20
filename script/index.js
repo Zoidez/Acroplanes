@@ -19,7 +19,7 @@ settings.cloud.minVel = 0;
 settings.cloud.maxVel = 5;
 settings.cloud.minHeight = settings.height - settings.ground.height - 1000;
 settings.cloud.maxHeight = -300;
-settings.cloud.maxCount = 100;
+settings.cloud.maxCount = 2;
 settings.cloud.count = 0;
 //----End of settings----//
 
@@ -27,12 +27,6 @@ settings.cloud.count = 0;
 //----For more information, refer to the mind map----//
 var assets = new Object();
 
-var groundImage = new Image(),
-    atmosphereImage = new Image(),
-    cloudImage1 = new Image(),
-    cloudImage2 = new Image(),
-    cloudImage3 = new Image(),
-    cloudImage4 = new Image();
 function init(){
     fixCanvas();
     loadAssets();
@@ -108,6 +102,7 @@ function initializeClouds(){
     for(var i=0; i<settings.cloud.maxCount; i++){
         var cloud = new Cloud();
         stage.getChildByName('world').addChild(cloud);
+        settigns.cloud.count++;
     }
 }
 function onMouseMove(e){

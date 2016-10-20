@@ -65,12 +65,12 @@
         this.setBounds(getRand(-settings.cloud.width+1, settings.width+settings.cloud.width-1), getRand(settings.cloud.minHeight, settings.cloud.MaxHeight), settings.cloud.width, settings.cloud.height);
         this.width = settings.cloud.width;
         this.height = settings.cloud.height;
-        this.x = getRand(-settings.cloud.width+1, settings.width+settings.cloud.width-1);
+        this.x = Math.floor(Math.random()*500);//getRand(-settings.cloud.width+1, settings.width+settings.cloud.width-1);
         this.y = getRand(settings.cloud.minHeight, settings.cloud.MaxHeight);
         this.vel = getRand(settings.cloud.minVel, settings.cloud.maxVel);
         var cloudBitmap = new createjs.Bitmap(assets.cloudImage[getRand(0,3)]);
-        //cloudBitmap.x = 0;
-        //cloudBitmap.y = 0;
+        cloudBitmap.x = Math.floor(Math.random()*500);//getRand(-settings.cloud.width+1, settings.width+settings.cloud.width-1);;
+        cloudBitmap.y = getRand(settings.cloud.minHeight, settings.cloud.MaxHeight);;
         this.addChild(cloudBitmap);
     }
     Cloud.prototype.tick = function(){
