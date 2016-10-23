@@ -9,6 +9,7 @@
     World.prototype.initialize = function() {
         this.container_initialize();
         this.name = 'world';
+        this.tickChildren = true;
         this.setBounds(0, 0, settings.width, settings.height);
         this.width = settings.width;
         this.height = settings.height;
@@ -40,7 +41,7 @@
         this.container_initialize();
         this.name = 'ground';
         this.setBounds(0, settings.height-settings.ground.height, settings.width, settings.ground.height);
-        this.x = 0;
+        this.x = 0 ;
         this.y = settings.height-settings.ground.height;
         this.width = settings.width;
         this.height = settings.ground.height;
@@ -52,32 +53,46 @@
 } (window));
 
 (function(window){
-    function Cloud(){
-        this.initialize();
+    function Cloud(x, y){
+        this.initialize(x, y);
     }
     Cloud.prototype = new createjs.Container();
 
     Cloud.prototype.container_initialize = Cloud.prototype.initialize;
 
-    Cloud.prototype.initialize = function() {
+    Cloud.prototype.initialize = function(x, y) {
         this.container_initialize();
         this.name = 'cloud';
-        this.setBounds(getRand(-settings.cloud.width+1, settings.width+settings.cloud.width-1), getRand(settings.cloud.minHeight, settings.cloud.MaxHeight), settings.cloud.width, settings.cloud.height);
+        this.setBounds(0, 0, settings.cloud.width, settings.cloud.height);
         this.width = settings.cloud.width;
         this.height = settings.cloud.height;
-        this.x = Math.floor(Math.random()*500);//getRand(-settings.cloud.width+1, settings.width+settings.cloud.width-1);
-        this.y = getRand(settings.cloud.minHeight, settings.cloud.MaxHeight);
-        this.vel = getRand(settings.cloud.minVel, settings.cloud.maxVel);
+        this.x = x;
+        this.y = y;
+        this.vel = Math.random()*settings.cloud.maxVel;
+        this.index = assets.clouds.length;
         var cloudBitmap = new createjs.Bitmap(assets.cloudImage[getRand(0,3)]);
-        cloudBitmap.x = Math.floor(Math.random()*500);//getRand(-settings.cloud.width+1, settings.width+settings.cloud.width-1);;
-        cloudBitmap.y = getRand(settings.cloud.minHeight, settings.cloud.MaxHeight);;
+        cloudBitmap.x = 0;
+        cloudBitmap.y = 0;
         this.addChild(cloudBitmap);
+        assets.clouds.push(this);
+        
     }
     Cloud.prototype.tick = function(){
         this.x-=this.vel;
-        if(this.x<(-settings.cloud.width)){
+        if(this.x<(-settings.cloud.width) && assets.clouds.length<100){
+            this.x = settings.width+settings.cloud.width;
+            /*var x, y;
             stage.getChildByName('world').removeChild(this);
-            settings.cloud.count--;
+            if(this.index>-1){
+                assets.clouds.splice(this.index, 1);
+                console.log('-cloud at: ' + this.index);
+            }
+            x = settings.width+settings.cloud.width;
+            y = Math.floor(Math.random()*(settings.cloud.minHeight+settings.cloud.height)-settings.cloud.height);
+            var cloud = new Cloud(x, y);
+            stage.getChildByName('world').addChild(cloud);
+            assets.clouds.push(cloud);*/
+            console.log('clouds: ' + assets.clouds.length);
         }
     }
     window.Cloud = Cloud;

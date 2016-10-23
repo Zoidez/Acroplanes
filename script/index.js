@@ -9,6 +9,7 @@ window.onresize = fixCanvas;
 var settings = new Object();
 settings.cloud = new Object();
 settings.ground = new Object();
+settings.plane = new Object();
 settings.width = 5000;
 settings.height = 4500;
 settings.ground.width = settings.width;
@@ -16,24 +17,32 @@ settings.ground.height = 500;
 settings.cloud.width = 1000;
 settings.cloud.height = 300;
 settings.cloud.minVel = 0;
-settings.cloud.maxVel = 5;
+settings.cloud.maxVel = 0.5;
 settings.cloud.minHeight = settings.height - settings.ground.height - 1000;
 settings.cloud.maxHeight = -300;
-settings.cloud.maxCount = 2;
+settings.cloud.maxCount = 50;
 settings.cloud.count = 0;
+settings.plane.width = 60;
+settings.plane.height = 13;
 //----End of settings----//
 
 //----Assets are to keep the objects you need at hand----//
 //----For more information, refer to the mind map----//
 var assets = new Object();
+assets.clouds = [];
 
 function init(){
     fixCanvas();
     loadAssets();
 
     stage = new createjs.Stage('canvas');
+    assets.stage = stage;
     var world = new World();
     stage.addChild(world);
+    
+    var plane = new Plane();
+    world.addChild(plane);
+    assets.plane = plane;
     
     stage.on('stagemousemove', function(e){
         stage.getChildByName('world').velX = (canvas.width/2 - e.rawX)/4;
@@ -42,7 +51,11 @@ function init(){
     createjs.Ticker.setFPS(60);
     createjs.Ticker.addEventListener('tick', tick);
     function tick(e){
+        //plane.tick();
         world.tick();
+        for(var i = 0; i<assets.clouds.length; i++){
+            assets.clouds[i].tick();
+        }
         stage.update();
     }
 }
@@ -54,12 +67,15 @@ function loadAssets(){
     assets.cloudImage[1] = new Image();
     assets.cloudImage[2] = new Image();
     assets.cloudImage[3] = new Image();
+    assets.planeImage = new Image();
     assets.groundImage.onload = onGroundImageLoad;
+    assets.groundImage.isLoaded = false;
     assets.atmosphereImage.onload = onAtmosphereImageLoad;
     assets.cloudImage[0].onload = onCloudImageLoad;
     assets.cloudImage[1].onload = onCloudImageLoad;
     assets.cloudImage[2].onload = onCloudImageLoad;
     assets.cloudImage[3].onload = onCloudImageLoad;
+    assets.planeImage.onload = onPlaneImageLoad;
     assets.cloudImage[0].isLoaded = false;
     assets.cloudImage[1].isLoaded = false;
     assets.cloudImage[2].isLoaded = false;
@@ -70,6 +86,7 @@ function loadAssets(){
     assets.cloudImage[1].src = './img/world_cloud2.png';
     assets.cloudImage[2].src = './img/world_cloud3.png';
     assets.cloudImage[3].src = './img/world_cloud4.png';
+    assets.planeImage.src = './img/plane.png';
 }
 function onGroundImageLoad(e){
     var groundShape = new createjs.Shape();
@@ -81,6 +98,7 @@ function onGroundImageLoad(e){
     
     var ground = new Ground(groundShape);
     stage.getChildByName('world').addChild(ground);
+    assets.ground = ground;
     stage.update();
 }
 function onAtmosphereImageLoad(e){
@@ -91,6 +109,7 @@ function onAtmosphereImageLoad(e){
     atmosphereShape.name = 'atmosphere';
     
     stage.getChildByName('world').addChild(atmosphereShape);
+    assets.groundImage.isLoaded = true;
     stage.update();
     
 }
@@ -99,11 +118,19 @@ function onCloudImageLoad(e){
     if(assets.cloudImage[0].isLoaded && assets.cloudImage[1].isLoaded && assets.cloudImage[2].isLoaded && assets.cloudImage[3].isLoaded) initializeClouds();
 }
 function initializeClouds(){
+    var x, y;
     for(var i=0; i<settings.cloud.maxCount; i++){
-        var cloud = new Cloud();
+        x = Math.floor(Math.random()*(settings.width+settings.cloud.width+settings.cloud.width)-settings.cloud.width);
+        y = Math.floor(Math.random()*(settings.cloud.minHeight+settings.cloud.height)-settings.cloud.height);
+        var cloud = new Cloud(x, y);
         stage.getChildByName('world').addChild(cloud);
-        settigns.cloud.count++;
+        settings.cloud.count++;
     }
+}
+function onPlaneImageLoad(e){
+    var planeBitmap = new createjs.Bitmap(assets.planeImage);
+    var plane = new Plane(planeBitmap);
+    stage.getChildByName('world').addChild(plane);
 }
 function onMouseMove(e){
     //stage.getChildByName('world').vel.x = e.rawX - canvas.width/
