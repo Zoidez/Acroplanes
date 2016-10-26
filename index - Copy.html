@@ -1,0 +1,60 @@
+<html lang="en-US">
+<head>
+	<title>Acroplanes</title>
+	<meta charset="utf-8">
+	<meta name="Keywords" content="Acroplanes, planes, online, multiplayer, HTML5, game, shooter">
+	<meta name="Description" content="An online multiplayer 2d plane shooter.">
+	<!-link rel="icon" href="./favicon.ico" type="image/x-icon">
+	<!-link rel="stylesheet" href="main.css">
+    <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
+    <script src="https://code.createjs.com/tweenjs-0.6.2.min.js"></script>
+</head>
+<body onload="init();">
+    <canvas id="demoCanvas" width="500" height="250"></canvas>
+    <script>      
+        function init() {
+            var stage = new createjs.Stage("demoCanvas");
+
+            var img = new Image();
+
+            img.onload = onImageLoaded;
+            img.src = './img/sample.png';
+            var myBitmap = new createjs.Bitmap(img);
+
+            function onImageLoaded(e) {
+                stage.addChild(myBitmap);
+            }
+
+            if('ontouchstart' in document.documentElement) {
+                canvas.addEventListener('touchstart', function(e){
+                    handleKeyDown();
+                }, false);
+
+                canvas.addEventListener('touchend', function(e){
+                    handleKeyUp();
+                }, false);
+            } else {
+                document.onkeydown = handleKeyDown;
+                document.onkeyup = handleKeyUp;
+                document.onmousedown = handleKeyDown;
+                document.onmouseup = handleKeyUp;
+            }
+
+            function handleKeyDown(e){
+                //hero.jump();
+            }
+
+            function handleKeyUp(e){
+
+            }
+
+            createjs.Ticker.setFPS(60);
+            createjs.Ticker.addEventListener("tick", tick);
+            function tick(e){
+                myBitmap.y += 1;
+                stage.update(e);
+            }
+        }
+    </script>
+</body>
+</html>
