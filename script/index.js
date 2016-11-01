@@ -24,12 +24,17 @@ settings.cloud.maxCount = 50;
 settings.cloud.count = 0;
 settings.plane.width = 60;
 settings.plane.height = 13;
+settings.plane.maxVel = 15;
 //----End of settings----//
 
 //----Assets are to keep the objects you need at hand----//
 //----For more information, refer to the mind map----//
 var assets = new Object();
+assets.mouse = new Object();
 assets.clouds = [];
+assets.tickArray = [];  //Careful, no check for the presence of the tick function. You gotta make sure you don't push an object without tick() in here.
+assets.mouse.x = 0;
+assets.mouse.y = 0;
 
 function init(){
     fixCanvas();
@@ -39,22 +44,27 @@ function init(){
     assets.stage = stage;
     var world = new World();
     stage.addChild(world);
+    assets.world = world;
+    assets.tickArray.push(world);
     
     var plane = new Plane();
     world.addChild(plane);
     assets.plane = plane;
+    console.log(plane);
     
     stage.on('stagemousemove', function(e){
-        stage.getChildByName('world').velX = (canvas.width/2 - e.rawX)/4;
-        stage.getChildByName('world').velY = (canvas.height/2 - e.rawY)/4;
+        assets.mouse.x = e.localX;
+        assets.mouse.y = e.localY;
+        //console.log('x: ' + assets.mouse.x + 'y: ' + assets.mouse.y);
     });
     createjs.Ticker.setFPS(60);
     createjs.Ticker.addEventListener('tick', tick);
     function tick(e){
-        //plane.tick();
-        world.tick();
         for(var i = 0; i<assets.clouds.length; i++){
             assets.clouds[i].tick();
+        }
+        for(var i = 0; i<assets.tickArray.length; i++){
+            assets.tickArray[i].tick();
         }
         stage.update();
     }
