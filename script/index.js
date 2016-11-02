@@ -25,6 +25,7 @@ settings.cloud.count = 0;
 settings.plane.width = 60;
 settings.plane.height = 13;
 settings.plane.maxVel = 15;
+settings.plane.engineOn = false;
 //----End of settings----//
 
 //----Assets are to keep the objects you need at hand----//
@@ -53,10 +54,13 @@ function init(){
     console.log(plane);
     
     stage.on('stagemousemove', function(e){
-        assets.mouse.x = e.localX;
-        assets.mouse.y = e.localY;
+        assets.mouse.x = e.rawX;
+        assets.mouse.y = e.rawY;
         //console.log('x: ' + assets.mouse.x + 'y: ' + assets.mouse.y);
     });
+    
+    this.document.onkeydown = keyDown;
+    
     createjs.Ticker.setFPS(60);
     createjs.Ticker.addEventListener('tick', tick);
     function tick(e){
@@ -142,6 +146,13 @@ function onPlaneImageLoad(e){
     var plane = new Plane(planeBitmap);
     stage.getChildByName('world').addChild(plane);
 }
-function onMouseMove(e){
-    //stage.getChildByName('world').vel.x = e.rawX - canvas.width/
+function keyDown(e){
+    if(e.keyCode == 81){
+        if(settings.plane.engineOn == false){
+            settings.plane.engineOn = true;
+        }
+        else{
+            settings.plane.engineOn = false;
+        }
+    }
 }
