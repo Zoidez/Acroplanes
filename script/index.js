@@ -25,6 +25,7 @@ settings.cloud.count = 0;
 settings.plane.width = 60;
 settings.plane.height = 13;
 settings.plane.maxVel = 15;
+settings.plane.takeOffVel = 8;
 settings.plane.engineOn = false;
 //----End of settings----//
 

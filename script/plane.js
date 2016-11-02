@@ -41,19 +41,23 @@
         if(assets.world.y>0) assets.world.y = 0;
         if(assets.world.x<canvas.width-settings.width) assets.world.x = canvas.width-settings.width;
         if(assets.world.y<canvas.height-settings.height) assets.world.y = canvas.height-settings.height;
-        //console.log('x: ' + (assets.mouse.x - this.x-assets.world.x) + 'y: ' + (assets.mouse.y - this.y-assets.world.y));
         this.rotation = -Math.atan2(assets.mouse.x - this.x-assets.world.x, assets.mouse.y - this.y-assets.world.y)*180/Math.PI+90;
+        //console.log(Math.cos(assets.mouse.x - this.x-assets.world.x, assets.mouse.y - this.y-assets.world.y)/Math.PI);
+        console.log(((assets.mouse.x-this.x-assets.world.x)/(assets.mouse.y - this.y-assets.world.y)));
         if(settings.plane.engineOn){
             //console.log('Engine on!');
             if(Math.sqrt(Math.pow(this.velX, 2) + Math.pow(this.velY, 2)) < settings.plane.maxVel){
                 this.velX += Math.cos(this.rotation/180)*0.3;
+                if(Math.sqrt(Math.pow(this.velX, 2) + Math.pow(this.velY, 2)) > settings.plane.takeOffVel){
+                    //this.velY += Math
+                }
             }
         }
         else{
             //console.log('Engine off!');
             //if(Math.sqrt(Math.pow(this.velX, 2) + Math.pow(this.velY, 2)) < settings.plane.maxVel){
             if(this.velX>0){
-                this.velX -= Math.cos(-this.rotation/180)*0.3;
+                this.velX -= 0.05;   //Air drag. later, if needed in other places, put under settings.
             }
             //}
         }
