@@ -26,7 +26,6 @@ settings.plane.width = 60;
 settings.plane.height = 13;
 settings.plane.maxVel = 15;
 settings.plane.takeOffVel = 8;
-settings.plane.engineOn = false;
 //----End of settings----//
 
 //----Assets are to keep the objects you need at hand----//
@@ -48,11 +47,6 @@ function init(){
     stage.addChild(world);
     assets.world = world;
     assets.tickArray.push(world);
-    
-    var plane = new Plane();
-    world.addChild(plane);
-    assets.plane = plane;
-    console.log(plane);
     
     stage.on('stagemousemove', function(e){
         assets.mouse.x = e.rawX;
@@ -112,7 +106,7 @@ function onGroundImageLoad(e){
     groundShape.graphics.drawRect(0, 0, settings.ground.width, settings.ground.height);
     
     var ground = new Ground(groundShape);
-    stage.getChildByName('world').addChild(ground);
+    assets.world.addChild(ground);
     assets.ground = ground;
     stage.update();
 }
@@ -123,7 +117,7 @@ function onAtmosphereImageLoad(e){
     atmosphereShape.graphics.drawRect(0, 0, settings.width, settings.height-settings.ground.height);
     atmosphereShape.name = 'atmosphere';
     
-    stage.getChildByName('world').addChild(atmosphereShape);
+    assets.world.addChild(atmosphereShape);
     assets.groundImage.isLoaded = true;
     stage.update();
     
@@ -138,22 +132,23 @@ function initializeClouds(){
         x = Math.floor(Math.random()*(settings.width+settings.cloud.width+settings.cloud.width)-settings.cloud.width);
         y = Math.floor(Math.random()*(settings.cloud.minHeight+settings.cloud.height)-settings.cloud.height);
         var cloud = new Cloud(x, y);
-        stage.getChildByName('world').addChild(cloud);
+        assets.world.addChild(cloud);
         settings.cloud.count++;
     }
 }
 function onPlaneImageLoad(e){
     var planeBitmap = new createjs.Bitmap(assets.planeImage);
     var plane = new Plane(planeBitmap);
-    stage.getChildByName('world').addChild(plane);
+    assets.plane = plane;
+    assets.world.addChild(plane);
 }
 function keyDown(e){
-    if(e.keyCode == 81){
-        if(settings.plane.engineOn == false){
-            settings.plane.engineOn = true;
+    if(e.keyCode == 81 && !(typeof assets.plane == 'undefined')){
+        if(assets.plane.engineOn == false){
+            assets.plane.engineOn = true;
         }
         else{
-            settings.plane.engineOn = false;
+            assets.plane.engineOn = false;
         }
     }
 }
