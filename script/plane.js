@@ -19,7 +19,15 @@
         this.vel = 0;
         this.velX = 0;
         this.velY = -0;
+        this.velRotation = 0;
         this.engineOn = false;
+        this.gravity = {
+            y : 0,
+            apply : function(){
+                
+            }
+        }
+        this.gravity.apply();
         //this.addEventListener("click", function(event) { alert("clicked"); })
         this.addChild(planeBitmap);
         assets.tickArray.push(this);
@@ -27,26 +35,30 @@
     Plane.prototype.tick = function(){
         //----Rotating the plane----//
         this.rotation = -Math.atan2(assets.mouse.x - this.x-assets.world.x, assets.mouse.y - this.y-assets.world.y)*180/Math.PI+90;
+        if(this.vel>1){
+                this.velRotation = this.velRotation + ((this.rotation-this.velRotation)*((settings.plane.maxVel-this.vel)/settings.plane.maxVel));
+                console.log('vel: ' + ((settings.plane.maxVel-this.vel)/settings.plane.maxVel) + '\nrotation: ' + this.rotation + '\nvelRotation: ' + this.velRotation);
+        }
         //----Moving the plane----//
         //Vector velocity
         if(this.vel<settings.plane.maxVel && this.engineOn){
-            this.vel+=((Math.cos(this.rotation * (Math.PI/180))) * 0.3);
+            this.vel+=/*((Math.cos(this.rotation * (Math.PI/180))) * */0.3//);
         }
         //Velocity Y
-        this.velY = ((Math.sin(this.rotation * (Math.PI/180))) * this.vel);
+        this.velY = ((Math.sin(this.velRotation * (Math.PI/180))) * this.vel);
         if(this.y+this.height<settings.height-settings.ground.height){
             if(this.vel<2){
-                this.velY += 1-this.velY;
+                this.velY += (this.vel<1) ? this.velY : 1;
             }
         }
         else if(this.velY>0){
             this.velY = 0;
-            this.vel = ((Math.cos(this.rotation * (Math.PI/180))) * this.vel);
+            //this.vel = ((Math.cos(this.velRotation * (Math.PI/180))) * this.vel);
         }
         this.y+=this.velY;
         //Velocity X
         if(this.x < settings.width-settings.plane.width/2 && this.x+settings.plane.width/2 > 0){
-            this.velX = ((Math.cos(this.rotation * (Math.PI/180))) * this.vel);
+            this.velX = ((Math.cos(this.velRotation * (Math.PI/180))) * this.vel);
             this.x+=this.velX;
         }
         //Moving the world with the plane
@@ -60,7 +72,7 @@
         if(assets.plane.engineOn){
             //console.log('Engine on!');
             if(Math.sqrt(Math.pow(this.velX, 2) + Math.pow(this.velY, 2)) < settings.plane.maxVel){
-                this.velX += Math.cos(this.rotation/180)*0.3;
+                this.velX += Math.cos(this.velRotation/180)*0.3;
                 if(Math.sqrt(Math.pow(this.velX, 2) + Math.pow(this.velY, 2)) > settings.plane.takeOffVel){
                     //this.velY += Math
                 }
@@ -75,5 +87,6 @@
             //}
         }
     }
+    function applyGravity(){console.log('gravity applied at: ' + this.gravity.y);}
     window.Plane = Plane;
 } (window));
