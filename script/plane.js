@@ -22,6 +22,31 @@
         this.velRotation = 0;
         this.cursorRotation = 0;
         this.engineOn = false;
+        var line = new createjs.Shape();
+        line.name = 'line';
+        line.width = 120;
+        line.height = 1;
+        line.x = settings.plane.width/2;
+        line.y = settings.plane.height/2
+        line.regX = 0;
+        line.regY = 0;
+        line.graphics = new createjs.Graphics();
+        line.graphics.beginFill('green');
+        line.graphics.drawRect(settings.plane.width/2, settings.plane.height/2, 120, 1);
+        this.addChild(line);
+        
+        var line2 = new createjs.Shape();
+        line2.name = 'line2';
+        line2.width = 1;
+        line2.height = 120;
+        line2.x = settings.plane.width/2;
+        line2.y = settings.plane.height/2
+        line2.regX = 0;
+        line2.regY = 0;
+        line2.graphics = new createjs.Graphics();
+        line2.graphics.beginFill('red');
+        line2.graphics.drawRect(settings.plane.width/2, settings.plane.height/2, 1, 120);
+        this.addChild(line2);
         this.gravity = {
             y : 0,
             apply : function(){
@@ -34,6 +59,14 @@
         assets.tickArray.push(this);
     }
     Plane.prototype.tick = function(){
+        //----Testing UI----//
+        this.getChildByName('line').rotation = -this.velRotation;
+        this.getChildByName('line2').rotation = -this.velRotation;
+        //this.getChildByName('line').scaleX = (this.velX/this.getChildByName('line').scaleX);
+        //this.getChildByName('line2').scaleY = this.velY;
+        
+        this.vel = Math.sqrt(Math.pow(this.velX, 2) + Math.pow(this.velY, 2));
+        //this.velRotation = -Math.atan2(this.velX, this.velY)*180/Math.PI+90;
         //----Rotating the plane----//
         this.cursorRotation = -Math.atan2(assets.mouse.x - this.x-assets.world.x, assets.mouse.y - this.y-assets.world.y)*180/Math.PI+90;
         
@@ -52,14 +85,14 @@
         //----Moving the plane----//
         //Vector velocity
         if(this.vel<settings.plane.maxVel && this.engineOn){
-            this.vel+=/*((Math.cos(this.cursorRotation * (Math.PI/180))) * */0.3//);
+            this.vel+=/*((Math.cos(this.cursorRotation * (Math.PI/180))) * */0.05//);
         }
-        else if(this.vel>0) this.vel-=0.5;
+        else if(this.vel>0) this.vel-=0.5; //Suspends the plane in the air.
         //Velocity Y
         this.velY = ((Math.sin(this.velRotation * (Math.PI/180))) * this.vel);
         if(this.y+this.height<settings.height-settings.ground.height){
             //if(this.vel<2){
-                this.velY += (this.vel<1) ? this.velY : 1;
+                //this.velY += (this.velX<0.1) ? 5 : 0.5*(1/this.velX);
             //}
         }
         else if(this.velY>0){
@@ -70,8 +103,9 @@
         //Velocity X
         if(this.x < settings.width-settings.plane.width/2 && this.x+settings.plane.width/2 > 0){
             this.velX = ((Math.cos(this.velRotation * (Math.PI/180))) * this.vel);
-            this.x+=this.velX;
         }
+        this.x+=this.velX;
+        
         //Moving the world with the plane
         assets.world.x = canvas.width/2 - this.x;
         assets.world.y = canvas.height/2 - this.y;
