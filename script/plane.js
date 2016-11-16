@@ -42,6 +42,7 @@
         //this.velRotation = -Math.atan2(this.velX, this.velY)*180/Math.PI+90;
         //----Rotating the plane----//
         this.cursorRotation = -Math.atan2(assets.mouse.x - this.x-assets.world.x, assets.mouse.y - this.y-assets.world.y)*180/Math.PI+90;
+        this.velRotation = -Math.atan2(this.velX, this.velY)*180/Math.PI+90;
         
         if(Math.abs(this.cursorRotation-this.velRotation)>180){
             if(this.cursorRotation>this.velRotation) this.velRotation+=360;
@@ -49,12 +50,12 @@
         }
         if(this.vel>1){
             this.velRotation = (this.velRotation + ((this.cursorRotation-this.velRotation)*(this.vel/(settings.plane.maxVel+200))));
+            //this.velRotation = (this.velRotation + (this.cursorRotation-this.velRotation)*0.7*(this.vel/(settings.plane.maxVel+200)));
              //console.log('+vel: ' + this.vel + '\nrotation: ' + this.cursorRotation + '\nvelRotation: ' + this.velRotation);
         } else {
-            this.velRotation = (this.velRotation + ((this.cursorRotation-this.velRotation)*(1/settings.plane.maxVel)));
+            this.velRotation = (this.velRotation + (this.cursorRotation-this.velRotation)*0.09);
             //console.log('-vel: ' + this.vel + '\nrotation: ' + this.cursorRotation + '\nvelRotation: ' + this.velRotation);
         }
-        this.velRotation = -Math.atan2(this.velX, this.velY)*180/Math.PI+90;
         console.log('Math.atan2 = ' + (-Math.atan2(this.velX, this.velY)*180/Math.PI+90))
         this.rotation = this.velRotation;
         //----Moving the plane----//
@@ -67,11 +68,13 @@
         this.velY = ((Math.sin(this.velRotation * (Math.PI/180))) * this.vel);
         if(this.y+this.height<settings.height-settings.ground.height){
             //if(this.vel<2){
-                //this.velY += (this.velX<0.1) ? 5 : 0.5*(1/this.velX);
+                var pitch = Math.abs(Math.cos(this.velRotation * (Math.PI/180)));
+                //this.velY += (pitch>1) ? 1/pitch : 1/pitch;
             //}
         }
         else if(this.velY>0){
             this.velY = 0;
+            this.y = settings.height-settings.ground.height-this.height;
             //this.vel = ((Math.cos(this.velRotation * (Math.PI/180))) * this.vel);
         }
         this.y+=this.velY;
