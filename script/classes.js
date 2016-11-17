@@ -100,3 +100,16 @@
 function getRand(min, max){
     return Math.floor(Math.random()*(max-min)+min);
 }
+
+(function(window){
+    function Force(v, d){
+        this.initialize(v, d);
+    }
+    Force.prototype = new Object();
+    Force.prototype.initialize = function(v, d){
+        this.value = v;
+        this.direction = d;
+        this.apply = function(){}; //define the way the force interacts with the object manually, after every definition.
+    }
+    window.Force = Force;
+} (window));

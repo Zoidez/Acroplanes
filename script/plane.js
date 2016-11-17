@@ -30,6 +30,11 @@
         this.addChild(test);
         this.addChild(planeBitmap);
         assets.tickArray.push(this);
+        this.gravity = new Force();
+        this.gravity.apply = function(plane){
+            plane.velY += 0.1*((settings.plane.maxVel - plane.velX)/settings.plane.maxVel);
+            console.log("velX: " + plane.velX);
+        }
     }
     Plane.prototype.tick = function(){
         //----Testing UI----//
@@ -49,14 +54,14 @@
             else this.velRotation-=360;
         }
         if(this.vel>1){
-            this.velRotation = (this.velRotation + ((this.cursorRotation-this.velRotation)*(this.vel/(settings.plane.maxVel+200))));
+            this.velRotation = (this.velRotation + ((this.cursorRotation-this.velRotation)*(this.vel*this.vel/(settings.plane.maxVel+1000))));
             //this.velRotation = (this.velRotation + (this.cursorRotation-this.velRotation)*0.7*(this.vel/(settings.plane.maxVel+200)));
              //console.log('+vel: ' + this.vel + '\nrotation: ' + this.cursorRotation + '\nvelRotation: ' + this.velRotation);
         } else {
-            this.velRotation = (this.velRotation + (this.cursorRotation-this.velRotation)*0.09);
-            //console.log('-vel: ' + this.vel + '\nrotation: ' + this.cursorRotation + '\nvelRotation: ' + this.velRotation);
+            this.velRotation = (this.velRotation + (this.cursorRotation-this.velRotation)*(this.vel/1000));
+            console.log('-vel: ' + this.vel + '\nrotation: ' + this.cursorRotation + '\nvelRotation: ' + this.velRotation);
         }
-        console.log('Math.atan2 = ' + (-Math.atan2(this.velX, this.velY)*180/Math.PI+90))
+        //console.log('Math.atan2 = ' + (-Math.atan2(this.velX, this.velY)*180/Math.PI+90))
         this.rotation = this.velRotation;
         //----Moving the plane----//
         //Vector velocity
@@ -70,6 +75,7 @@
             //if(this.vel<2){
                 var pitch = Math.abs(Math.cos(this.velRotation * (Math.PI/180)));
                 //this.velY += (pitch>1) ? 1/pitch : 1/pitch;
+                this.gravity.apply(this);
             //}
         }
         else if(this.velY>0){
