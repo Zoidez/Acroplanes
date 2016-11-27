@@ -17,9 +17,11 @@
         line.width = 120;
         line.height = 1;
         line.graphics = new createjs.Graphics();
+        line.isRed = false;
         line.graphics.beginFill('green');
         line.graphics.drawRect(0, 0, 120, 1);
         line.set = set;
+        line.changeColor = changeColor;
         this.addChild(line);
         this.xLine = line;
         
@@ -30,11 +32,19 @@
         line2.width = 1;
         line2.height = 120;
         line2.graphics = new createjs.Graphics();
-        line2.graphics.beginFill('red');
+        line2.isRed = false;
+        line2.graphics.beginFill('green');
         line2.graphics.drawRect(0, 0, 1, 120);
         line2.set = set;
+        line2.changeColor = changeColor;
         this.addChild(line2);
         this.yLine = line2;
+    }
+    function changeColor(color) {
+        this.graphics.clear();
+        this.graphics.beginFill(color);
+        this.graphics.drawRect(0, 0, this.width, this.height);
+        this.isRed = (color === 'red');
     }
     function set(lvl, width){
         if(width) this.scaleX = (lvl/this.width)*4;
