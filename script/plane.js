@@ -25,6 +25,7 @@
         this.engineOn = false;
         this.landed = true;
         this.landedLeft = false;
+        this.readyToFire = false;
         //this.addEventListener("click", function(event) { alert("clicked"); })
         var test = new TestUI();
         test.name = 'test';
@@ -34,6 +35,7 @@
         this.addChild(test);
         this.addChild(planeBitmap);
         assets.tickArray.push(this);
+        stage.setChildIndex(this, stage.getNumChildren()-1);
         this.gravity = new Force();
         this.gravity.apply = function(plane){
             plane.velY += 0.1;//*Math.abs(((settings.plane.maxVel - Math.abs(plane.velX))/settings.plane.maxVel)-1);
@@ -52,7 +54,15 @@
 
         
 //------//----Rotating the plane----//
-        this.cursorRotation = -Math.atan2(assets.mouse.x - this.x-assets.world.x, assets.mouse.y - this.y-assets.world.y)*180/Math.PI+90;
+        //Pointing the nose down to the ground causes the plane to explode on runway.
+        //Pointing the nose to the 60^ makes the plane run on the ground without dying.
+        if(this.landed){
+            if(this.velRotation > 90){
+                this.cursorRotation = 240;
+            }
+            else this.cursorRotation = -60;
+        }
+        else this.cursorRotation = -Math.atan2(assets.mouse.x - this.x-assets.world.x, assets.mouse.y - this.y-assets.world.y)*180/Math.PI+90;
         this.velRotation = -Math.atan2(this.velX, this.velY)*180/Math.PI+90;
         this.vel = Math.sqrt(Math.pow(this.velX, 2) + Math.pow(this.velY, 2));
         this.vel -= Math.abs(0.01*this.vel*Math.sin((this.cursorRotation-this.velRotation) * (Math.PI/180))); //Redo this one. This is very crude.
@@ -97,10 +107,18 @@
             this.y = settings.height-settings.ground.height-this.height;
             //this.vel = ((Math.cos(this.velRotation * (Math.PI/180))) * this.vel);
         }
+        else if(this.velY<0 && Math.abs(this.velX) < 8){
+            this.velY = 0;
+            this.y = settings.height-settings.ground.height-this.height;
+        }
         this.y+=this.velY;
         
 //------//Velocity X
+        if((this.velX == 0) && (this.vel != 0) && (this.landed) && (this.landedLeft)){
+            this.vel = -this.vel;
+        } //----Stopped here----//
         this.velX = ((Math.cos(this.velRotation * (Math.PI/180))) * this.vel);
+        
         if(settings.height-settings.ground.height-this.height-this.y < 0.5 && !this.engineOn){
             /*if(this.velX > 0.5) this.velX -= 0.05;
             else if(this.velX < -0.5) this.velX += 0.05;
@@ -128,6 +146,7 @@
                 this.landed = true;
                 this.landedLeft = (this.rotation > 90);
             }
+            this.readyToFire = false;
             if(this.velX < 1){
                 //If plane stopped, keep plane horizontal
                 if(this.landedLeft){
@@ -147,11 +166,15 @@
                 }
             }
         }
-        else this.landed = false;
+        else{
+            if(this.landed) this.readyToFire = true;
+            this.landed = false;
+        }
         
         //----Stopped here----//
-        console.log(this.velX);
         
+        
+        if(assets.mouse.leftButtonDown) mouseDown();
 //------//Moving the world with the plane
         assets.world.x = canvas.width/2 - this.x;
         assets.world.y = canvas.height/2 - this.y;
@@ -159,6 +182,14 @@
         if(assets.world.y>0) assets.world.y = 0;
         if(assets.world.x<canvas.width-settings.width) assets.world.x = canvas.width-settings.width;
         if(assets.world.y<canvas.height-settings.height) assets.world.y = canvas.height-settings.height;
+    }
+    function mouseDown(){
+        if(assets.plane.readyToFire){
+            var bullet = new Bullet(assets.plane.x, assets.plane.y, assets.plane.velRotation);
+            assets.world.addChild(bullet);
+            assets.plane.readyToFire = false;
+            setTimeout(function(){assets.plane.readyToFire = true;}, 60);
+        }
     }
     window.Plane = Plane;
 } (window));

@@ -10,6 +10,7 @@ var settings = new Object();
 settings.cloud = new Object();
 settings.ground = new Object();
 settings.plane = new Object();
+settings.bullet = new Object();
 settings.width = 5000;
 settings.height = 4500;
 settings.ground.width = settings.width;
@@ -26,6 +27,9 @@ settings.plane.width = 60;
 settings.plane.height = 13;
 settings.plane.maxVel = 15;
 settings.plane.takeOffVel = 8;
+settings.bullet.radius = 2;
+settings.bullet.speed = 30;
+settings.bullet.fireRate = 60; //Measured in microseconds - period between two shots.
 //----End of settings----//
 
 //----Assets are to keep the objects you need at hand----//
@@ -33,6 +37,7 @@ settings.plane.takeOffVel = 8;
 var assets = new Object();
 assets.mouse = new Object();
 assets.clouds = [];
+assets.bullets = [];
 assets.tickArray = [];  //Careful, no check for the presence of the tick function. You gotta make sure you don't push an object without tick() in here.
 assets.mouse.x = 0;
 assets.mouse.y = 0;
@@ -48,12 +53,22 @@ function init(){
     assets.world = world;
     assets.tickArray.push(world);
     
+    var userInterface = new UserInterface();
+    stage.addChild(userInterface);
+    assets.UI = userInterface;
+    
     stage.on('stagemousemove', function(e){
         assets.mouse.x = e.rawX;
         assets.mouse.y = e.rawY;
         //console.log('x: ' + assets.mouse.x + 'y: ' + assets.mouse.y);
     });
+    stage.on('stagemousedown', function(e){
+        assets.mouse.leftButtonDown = true;
+    });
     
+    stage.on('stagemouseup', function(e){
+        assets.mouse.leftButtonDown = false;
+    })
     this.document.onkeydown = keyDown;
     
     createjs.Ticker.setFPS(60);
@@ -64,6 +79,9 @@ function init(){
         }
         for(var i = 0; i<assets.tickArray.length; i++){
             assets.tickArray[i].tick();
+        }
+        for(var i = 0; i<assets.bullets.length; i++){
+            assets.bullets[i].tick();
         }
         stage.update();
     }
@@ -150,5 +168,6 @@ function keyDown(e){
         else{
             assets.plane.engineOn = false;
         }
+        assets.UI.setEngineLight(assets.plane.engineOn);
     }
 }

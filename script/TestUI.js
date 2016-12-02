@@ -39,6 +39,7 @@
         line2.changeColor = changeColor;
         this.addChild(line2);
         this.yLine = line2;
+        stage.setChildIndex( this, stage.getNumChildren()-1);
     }
     function changeColor(color) {
         this.graphics.clear();
