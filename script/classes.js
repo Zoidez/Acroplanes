@@ -17,6 +17,7 @@
         this.y = -3000;
         this.velX = 0;
         this.velY = 0;
+        this.remove = remove;
     }
     World.prototype.tick = function(){
         this.y += this.velY;
@@ -25,6 +26,16 @@
         if(this.x>0) this.x = 0;
         if(this.y<(canvas.height-this.height)) this.y = canvas.height-this.height;
         if(this.y>0) this.y = 0;
+    }
+    function remove(id){
+        var found = false;
+        for(var i=0; i<this.children.length && !found; i++){
+            if(this.children[i].id == id){
+                n = i;
+                this.removeChildAt(i);
+                found = true;
+            }
+        }
     }
     window.World = World;
 } (window));
@@ -120,7 +131,8 @@ function getRand(min, max){
         this.x = x;
         this.y = y;
         this.direction = direction;
-        this.index = assets.bullets.length;
+        this.pause = false;
+        this.id = Math.floor(Math.random()*1000000000000);
         var bulletShape = new createjs.Shape();
         bulletShape.x = 0;
         bulletShape.y = 0;
@@ -132,11 +144,38 @@ function getRand(min, max){
         this.addChild(bulletShape);
         assets.bullets.push(this);
         stage.setChildIndex(this, stage.getNumChildren()-1);
-        console.log('Bullet created!');
+        this.remove = remove;
+        this.pauseMe = pause;
+        window.setTimeout(function(){bulletShape.parent.pauseMe();}, 500);
+        window.setTimeout(function(){bulletShape.parent.remove();}, settings.bullet.lifetime);
+        
     }
     Bullet.prototype.tick = function(){
-        this.y += ((Math.sin(this.direction * (Math.PI/180))) * settings.bullet.speed);
-        this.x += ((Math.cos(this.direction * (Math.PI/180))) * settings.bullet.speed);
+        if(!this.pause) this.y += ((Math.sin(this.direction * (Math.PI/180))) * settings.bullet.speed);
+        if(!this.pause) this.x += ((Math.cos(this.direction * (Math.PI/180))) * settings.bullet.speed);
+        if(this.x<0 || this.y<0 || this.x>settings.width || this.y+this.height>settings.height-settings.ground.height) this.remove();
+        for(var i = 0; i<assets.targets.length; i++){
+            if(assets.targets[i].hitTest(this.x+assets.world.x, this.y+assets.world.y)){
+                //this.remove();
+                assets.targets[i].health -= settings.bullet.damage;
+                assets.UI.setHealth(assets.targets[i].health);
+                this.children.bulletShape.graphics.clear().drawCircle(0, 0, 300);
+                console.log('Damage! HP: ' + assets.targets[i].health);
+            }
+        }
+    }
+    function remove(){
+        var found = false;
+        for(var i=0; i<assets.bullets.length && !found; i++){
+            if(assets.bullets[i].id == this.id){
+                 assets.bullets.splice(i, 1);
+                found = true;
+            }
+        }
+        assets.world.remove(this.id);
+    }
+    function pause(){
+        this.pause = true;
     }
     window.Bullet = Bullet;
 } (window));

@@ -30,6 +30,8 @@ settings.plane.takeOffVel = 8;
 settings.bullet.radius = 2;
 settings.bullet.speed = 30;
 settings.bullet.fireRate = 60; //Measured in microseconds - period between two shots.
+settings.bullet.lifetime = 20000; //in microseconds.
+settings.bullet.damage = 15;
 //----End of settings----//
 
 //----Assets are to keep the objects you need at hand----//
@@ -38,6 +40,7 @@ var assets = new Object();
 assets.mouse = new Object();
 assets.clouds = [];
 assets.bullets = [];
+assets.targets = [];
 assets.tickArray = [];  //Careful, no check for the presence of the tick function. You gotta make sure you don't push an object without tick() in here.
 assets.mouse.x = 0;
 assets.mouse.y = 0;

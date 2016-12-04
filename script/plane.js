@@ -22,6 +22,7 @@
         this.rotation = 0;
         this.velRotation = 0;
         this.cursorRotation = 0;
+        this.health = 100;
         this.engineOn = false;
         this.landed = true;
         this.landedLeft = false;
@@ -35,6 +36,7 @@
         this.addChild(test);
         this.addChild(planeBitmap);
         assets.tickArray.push(this);
+        assets.targets.push(this);
         stage.setChildIndex(this, stage.getNumChildren()-1);
         this.gravity = new Force();
         this.gravity.apply = function(plane){
@@ -141,11 +143,15 @@
                 this.rotation = 0;
                 this.velRotation = 0;
                 this.engineOn = false;
+                this.health = 100;
+                assets.UI.setHealth(100);
+                assets.UI.setEngineLight(false);
             }
             if(!this.landed){
                 this.landed = true;
                 this.landedLeft = (this.rotation > 90);
             }
+            //constantly set fire to false while on ground in case of of the timeouts set it to 'true'.
             this.readyToFire = false;
             if(this.velX < 1){
                 //If plane stopped, keep plane horizontal
