@@ -10,8 +10,8 @@
         this.container_initialize();
         this.name = 'plane';
         this.setBounds(0, 0, settings.plane.width, settings.plane.height);
-        this.width = settings.plane.width/2;
-        this.height = settings.plane.height/2;
+        this.width = settings.plane.width;
+        this.height = settings.plane.height;
         this.regX = settings.plane.width/2;
         this.regY = settings.plane.height/2;
         this.x = Math.floor(Math.random()*(settings.width-1000));
@@ -38,6 +38,8 @@
         assets.tickArray.push(this);
         assets.targets.push(this);
         stage.setChildIndex(this, stage.getNumChildren()-1);
+        this.damage = damage;
+        this.die = die;
         this.gravity = new Force();
         this.gravity.apply = function(plane){
             plane.velY += 0.1;//*Math.abs(((settings.plane.maxVel - Math.abs(plane.velX))/settings.plane.maxVel)-1);
@@ -98,7 +100,7 @@
         
 //------//Velocity Y
         this.velY = ((Math.sin(this.velRotation * (Math.PI/180))) * this.vel);
-        if(this.y+settings.plane.height/2 < settings.height-settings.ground.height){
+        if(this.y+settings.plane.height < settings.height-settings.ground.height){
             //if(this.vel<2){
                 //this.velY += (pitch>1) ? 1/pitch : 1/pitch;
                 this.gravity.apply(this);
@@ -128,24 +130,13 @@
                 this.velX = 0;
             }*/
         }
-        if((this.x < settings.width-settings.plane.width/2 || this.velX<0) && (this.x-settings.plane.width/2 > 0 || this.velX>0)){
+        if((this.x < settings.width-settings.plane.width || this.velX<0) && (this.x-settings.plane.width > 0 || this.velX>0)){
             this.x+=this.velX;        
         }
         //Calculating collision with ground
-        if (this.y >= (settings.height - settings.ground.height - settings.plane.height/2)) {
+        if (this.y >= (settings.height - settings.ground.height - settings.plane.height)) {
             if((this.velX > 10) || (this.velY > 5)){
-                console.log('Crashed!');
-                this.x = Math.floor(Math.random()*(settings.width-1000));
-                this.y = 3993;
-                this.vel = 0;
-                this.velX = 0;
-                this.velY = -0;
-                this.rotation = 0;
-                this.velRotation = 0;
-                this.engineOn = false;
-                this.health = 100;
-                assets.UI.setHealth(100);
-                assets.UI.setEngineLight(false);
+                this.die();
             }
             if(!this.landed){
                 this.landed = true;
@@ -191,11 +182,29 @@
     }
     function mouseDown(){
         if(assets.plane.readyToFire){
-            var bullet = new Bullet(assets.plane.x, assets.plane.y, assets.plane.velRotation);
+            var bullet = new Bullet(assets.plane.x+((Math.cos(assets.plane.velRotation * (Math.PI/180))) * (assets.plane.width/8)), assets.plane.y+((Math.sin(assets.plane.velRotation * (Math.PI/180))) * (assets.plane.width/8)), assets.plane.velRotation);
             assets.world.addChild(bullet);
             assets.plane.readyToFire = false;
             setTimeout(function(){assets.plane.readyToFire = true;}, 60);
         }
+    }
+    function die(){
+        console.log('Died dead!');
+        this.x = Math.floor(Math.random()*(settings.width-1000));
+        this.y = 3993;
+        this.vel = 0;
+        this.velX = 0;
+        this.velY = -0;
+        this.rotation = 0;
+        this.velRotation = 0;
+        this.engineOn = false;
+        this.health = 100;
+        assets.UI.setHealth(100);
+        assets.UI.setEngineLight(false);
+    }
+    function damage(n){
+        this.health -= n;
+        assets.UI.setHealth(this.health);
     }
     window.Plane = Plane;
 } (window));

@@ -133,6 +133,7 @@ function getRand(min, max){
         this.direction = direction;
         this.pause = false;
         this.id = Math.floor(Math.random()*1000000000000);
+        this.pt;
         var bulletShape = new createjs.Shape();
         bulletShape.x = 0;
         bulletShape.y = 0;
@@ -146,21 +147,28 @@ function getRand(min, max){
         stage.setChildIndex(this, stage.getNumChildren()-1);
         this.remove = remove;
         this.pauseMe = pause;
-        window.setTimeout(function(){bulletShape.parent.pauseMe();}, 500);
+        //window.setTimeout(function(){bulletShape.parent.pauseMe();}, 30);
         window.setTimeout(function(){bulletShape.parent.remove();}, settings.bullet.lifetime);
         
     }
     Bullet.prototype.tick = function(){
+//------//----Moving Bullet----//
         if(!this.pause) this.y += ((Math.sin(this.direction * (Math.PI/180))) * settings.bullet.speed);
         if(!this.pause) this.x += ((Math.cos(this.direction * (Math.PI/180))) * settings.bullet.speed);
+//------//----Collision check----//
         if(this.x<0 || this.y<0 || this.x>settings.width || this.y+this.height>settings.height-settings.ground.height) this.remove();
         for(var i = 0; i<assets.targets.length; i++){
-            if(assets.targets[i].hitTest(this.x+assets.world.x, this.y+assets.world.y)){
-                //this.remove();
-                assets.targets[i].health -= settings.bullet.damage;
-                assets.UI.setHealth(assets.targets[i].health);
-                this.children.bulletShape.graphics.clear().drawCircle(0, 0, 300);
-                console.log('Damage! HP: ' + assets.targets[i].health);
+            this.pt = this.localToLocal(0, 0, assets.targets[i]);
+            //console.log('pt x: ' + pt.x + ' y: ' + pt.y);
+            if((Math.abs(assets.targets[i].x-this.x)<30) && (Math.abs(assets.targets[i].y-this.y))<30){ //Check most events off with a lighter check.
+                if(assets.targets[i].hitTest(this.pt.x, this.pt.y)){
+                    this.remove();
+                    assets.targets[i].damage(settings.bullet.damage);           
+                    console.log('Bullet x: ' + this.x + ' y: ' + this.y);
+                    console.log('Plane x: ' + assets.targets[i].x + ' y: ' + assets.targets[i].y);
+                    console.log('plane-bullet : ' + (assets.targets[i].x-this.x) + ' y: ' + (assets.targets[i].y-this.y));
+                    console.log('plane.rotation: ' + assets.plane.rotation + '\n-------------------------');
+                }
             }
         }
     }
