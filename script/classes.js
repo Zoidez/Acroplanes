@@ -14,7 +14,7 @@
         this.width = settings.width;
         this.height = settings.height;
         this.x = 0;
-        this.y = -3000;
+        this.y = 0;
         this.velX = 0;
         this.velY = 0;
         this.remove = remove;
@@ -164,8 +164,8 @@ function getRand(min, max){
                 if(assets.targets[i].hitTest(this.pt.x, this.pt.y)){
                     this.remove();
                     assets.targets[i].damage(settings.bullet.damage);           
-                    console.log('Bullet x: ' + this.x + ' y: ' + this.y);
-                    console.log('Plane x: ' + assets.targets[i].x + ' y: ' + assets.targets[i].y);
+                    //console.log('Bullet x: ' + this.x + ' y: ' + this.y);
+                    //console.log('Plane x: ' + assets.targets[i].x + ' y: ' + assets.targets[i].y);
                     console.log('plane-bullet : ' + (assets.targets[i].x-this.x) + ' y: ' + (assets.targets[i].y-this.y));
                     console.log('plane.rotation: ' + assets.plane.rotation + '\n-------------------------');
                 }
