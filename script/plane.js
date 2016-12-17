@@ -11,7 +11,7 @@
         this.name = 'plane';
         this.setBounds(0, 0, settings.plane.width, settings.plane.height);
         this.width = settings.plane.width;
-        this.height = settings.plane.height;
+        this.height = settings.plane.height/2;
         this.regX = settings.plane.width/2;
         this.regY = settings.plane.height/2;
         this.x = Math.floor(Math.random()*(settings.width-1000));
@@ -33,7 +33,7 @@
         test.x = settings.plane.width/2;
         test.y = settings.plane.height/2;
         this.test = test;
-        this.addChild(test);
+        //this.addChild(test);
         this.addChild(planeBitmap);
         assets.tickArray.push(this);
         assets.targets.push(this);
@@ -48,13 +48,13 @@
     }
     Plane.prototype.tick = function(){
 //------//----Testing UI----//
-        this.test.rotation = -this.velRotation;
+        /*this.test.rotation = -this.velRotation;
         this.test.xLine.set(this.velX, true);
         this.test.yLine.set(this.velY, false);
         if (!this.test.xLine.isRed && (Math.abs(this.velX) > 10)) this.test.xLine.changeColor('red');
         if (this.test.xLine.isRed && (Math.abs(this.velX) < 10)) this.test.xLine.changeColor('green');
         if (!this.test.yLine.isRed && (Math.abs(this.velY) > 5)) this.test.yLine.changeColor('red');
-        if (this.test.yLine.isRed && (Math.abs(this.velY) < 5)) this.test.yLine.changeColor('green');
+        if (this.test.yLine.isRed && (Math.abs(this.velY) < 5)) this.test.yLine.changeColor('green');*/
 
         
 //------//----Rotating the plane----//
@@ -71,9 +71,12 @@
         this.vel = Math.sqrt(Math.pow(this.velX, 2) + Math.pow(this.velY, 2));
         this.vel -= Math.abs(0.01*this.vel*Math.sin((this.cursorRotation-this.velRotation) * (Math.PI/180))); //Redo this one. This is very crude.
         
-        if(Math.abs(this.cursorRotation-this.velRotation)>180){
+        if(Math.abs(this.cursorRotation-this.velRotation)>=180){
+            console.log('this.cursorRotation: ' + this.cursorRotation);
+            console.log('this.velRotation:before: ' + this.velRotation);
             if(this.cursorRotation>this.velRotation) this.velRotation+=360;
             else this.velRotation-=360;
+            console.log('this.velRotation:after: ' + this.velRotation);
         }
         if(this.vel>1){
             this.velRotation = (this.velRotation + ((this.cursorRotation-this.velRotation)*(Math.pow(this.vel, 2.2)/(settings.plane.maxVel+3000))));
@@ -134,13 +137,15 @@
             this.x+=this.velX;        
         }
         //Calculating collision with ground
-        if (this.y >= (settings.height - settings.ground.height - settings.plane.height)) {
+        if (this.y >= (settings.height - settings.ground.height - settings.plane.height+3)) {
             if((this.velX > 10) || (this.velY > 5)){
                 this.die();
             }
             if(!this.landed){
                 this.landed = true;
                 this.landedLeft = (this.rotation > 90);
+                console.log('this.rotation: ' + this.rotation);
+                console.log('Left?: ' + this.landedLeft);
             }
             //constantly set fire to false while on ground in case of of the timeouts set it to 'true'.
             this.readyToFire = false;
