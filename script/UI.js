@@ -62,8 +62,38 @@
         
         this.addChild(engineLight);
         
+        var points = new createjs.Text("Score: 0", settings.UI.font, settings.UI.fontColor);
+        points.x = 50;
+        points.y = 80;
+        points.number = 0;
+        points.textBaseline = "alphabetic";
+        this.points = points;
+        this.setPoints = setPoints;
+        
+        this.addChild(points);
+        
+        var deaths = new createjs.Text("Deaths: 0", settings.UI.font, settings.UI.fontColor);
+        deaths.x = 40;
+        deaths.y = 100;
+        deaths.number = 0;
+        deaths.textBaseline = "alphabetic";
+        this.deaths = deaths;
+        this.setDeaths = setDeaths;
+        
+        this.addChild(deaths);
+        
+        var kills = new createjs.Text("Kills: 0", settings.UI.font, settings.UI.fontColor);
+        kills.x = 62;
+        kills.y = 120;
+        kills.number = 0;
+        kills.textBaseline = "alphabetic";
+        this.kills = kills;
+        this.setKills = setKills;
+        
+        this.addChild(kills);
+        
+        
         stage.setChildIndex( this, stage.getNumChildren()-1);
-        console.log('UI set.' + healthBar);
     }
     UserInterface.prototype.tick = function(){
     }
@@ -73,6 +103,18 @@
     function setEngineLight(engineOn){
         if(engineOn) this.engineLight.alpha = 1;
         else this.engineLight.alpha = 0.1;
+    }
+    function setPoints(number){
+        this.points.number = number;
+        this.points.text = "Score: " + this.points.number;
+    }
+    function setDeaths(number){
+        this.deaths.number = number;
+        this.deaths.text = "Deaths: " + this.deaths.number;
+    }
+    function setKills(number){
+        this.kills.number = number;
+        this.kills.text = "Kills: " + this.kills.number;
     }
     window.UserInterface = UserInterface;
 } (window));

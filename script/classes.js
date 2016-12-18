@@ -115,14 +115,14 @@ function getRand(min, max){
 } (window));
 
 (function(window){
-    function Bullet(x, y, direction){
-        this.initialize(x, y, direction);
+    function Bullet(x, y, direction, shooter){
+        this.initialize(x, y, direction, shooter);
     }
     Bullet.prototype = new createjs.Container();
 
     Bullet.prototype.container_initialize = Bullet.prototype.initialize;
 
-    Bullet.prototype.initialize = function(x, y, direction) {
+    Bullet.prototype.initialize = function(x, y, direction, shooter) {
         this.container_initialize();
         this.name = 'bullet';
         this.setBounds(0, 0, settings.bullet.radius, settings.bullet.radius);
@@ -132,8 +132,12 @@ function getRand(min, max){
         this.y = y;
         this.direction = direction;
         this.pause = false;
+        this.frozen = false;
         this.id = Math.floor(Math.random()*1000000000000);
         this.pt;
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.shooter = shooter;
         var bulletShape = new createjs.Shape();
         bulletShape.x = 0;
         bulletShape.y = 0;
@@ -147,6 +151,7 @@ function getRand(min, max){
         stage.setChildIndex(this, stage.getNumChildren()-1);
         this.remove = remove;
         this.pauseMe = pause;
+        this.freeze = freeze;
         //window.setTimeout(function(){bulletShape.parent.pauseMe();}, 30);
         window.setTimeout(function(){bulletShape.parent.remove();}, settings.bullet.lifetime);
         
@@ -162,14 +167,27 @@ function getRand(min, max){
             //console.log('pt x: ' + pt.x + ' y: ' + pt.y);
             if((Math.abs(assets.targets[i].x-this.x)<30) && (Math.abs(assets.targets[i].y-this.y))<30){ //Check most events off with a lighter check.
                 if(assets.targets[i].hitTest(this.pt.x, this.pt.y)){
-                    this.remove();
-                    assets.targets[i].damage(settings.bullet.damage);           
+                    //this.remove();
+                    this.freeze();
+                    
+                    //----Updating plane.score----//
+                    assets.plane.score.bulletsLanded++;
+                    if(assets.targets[i].damage(settings.bullet.damage)){
+                        assets.plane.score.kills++;
+                        assets.plane.score.points += settings.score.multipliers.kill + 20*assets.plane.score.accuracy;
+                        assets.UI.setKills(assets.plane.score.kills);
+                        assets.UI.setPoints(assets.plane.score.points)
+                    }           
                     //console.log('Bullet x: ' + this.x + ' y: ' + this.y);
                     //console.log('Plane x: ' + assets.targets[i].x + ' y: ' + assets.targets[i].y);
-                    console.log('plane-bullet : ' + (assets.targets[i].x-this.x) + ' y: ' + (assets.targets[i].y-this.y));
+                    console.log('plane-bullet x: ' + (assets.targets[i].x-this.x) + ' y: ' + (assets.targets[i].y-this.y));
                     console.log('plane.rotation: ' + assets.plane.rotation + '\n-------------------------');
                 }
             }
+        }
+        if(this.frozen){
+            this.x = assets.plane.x+this.offsetX;
+            this.y = assets.plane.y+this.offsetY;
         }
     }
     function remove(){
@@ -180,10 +198,16 @@ function getRand(min, max){
                 found = true;
             }
         }
+        if(this.shooter == 'player') assets.plane.score.accuracy = assets.plane.score.bulletsLanded/assets.plane.score.bulletsShot;
         assets.world.remove(this.id);
     }
     function pause(){
         this.pause = true;
+    }
+    function freeze(){
+        this.offsetX = this.x-assets.plane.x;
+        this.offsetY = this.y-assets.plane.y;
+        this.frozen = true;
     }
     window.Bullet = Bullet;
 } (window));

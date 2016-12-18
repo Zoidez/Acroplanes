@@ -11,6 +11,9 @@ settings.cloud = new Object();
 settings.ground = new Object();
 settings.plane = new Object();
 settings.bullet = new Object();
+settings.UI = new Object();
+settings.score = new Object();
+settings.score.multipliers = new Object();
 settings.width = 5000;
 settings.height = 4500;
 settings.ground.width = settings.width;
@@ -32,6 +35,10 @@ settings.bullet.speed = 30;
 settings.bullet.fireRate = 60; //Measured in microseconds - period between two shots.
 settings.bullet.lifetime = 20000; //in microseconds.
 settings.bullet.damage = 15;
+settings.UI.font = "17px Arial";
+settings.UI.fontColor = "#ffffff";
+settings.score.multipliers.death = -40; //Change to apply through +=
+settings.score.multipliers.kill = 80;
 //----End of settings----//
 
 //----Assets are to keep the objects you need at hand----//

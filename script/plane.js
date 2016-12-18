@@ -8,7 +8,7 @@
 
     Plane.prototype.initialize = function(planeBitmap) {
         this.container_initialize();
-        this.name = 'plane';
+        this.name = 'player';
         this.setBounds(0, 0, settings.plane.width, settings.plane.height);
         this.width = settings.plane.width;
         this.height = settings.plane.height/2;
@@ -27,12 +27,20 @@
         this.landed = true;
         this.landedLeft = false;
         this.readyToFire = false;
+        this.score = new Object();
+        this.score.points = 0;  //Your points for taking down planes and whatnot
+        this.score.deaths = 0;  //The number of your deaths (!)this round
+        this.score.kills = 0;   //The number of planes taken down
+        this.score.accuracy = 0.5;  //How good you are. Each time you shoot, this number changes (theoretically)
+        this.score.bulletsShot = 0; //How many bullets you have fired
+        this.score.bulletsLanded = 0; //How many have hit the (a) target
         //this.addEventListener("click", function(event) { alert("clicked"); })
         var test = new TestUI();
         test.name = 'test';
         test.x = settings.plane.width/2;
         test.y = settings.plane.height/2;
         this.test = test;
+        this.test.shotFrom = 0;
         //this.addChild(test);
         this.addChild(planeBitmap);
         assets.tickArray.push(this);
@@ -72,11 +80,11 @@
         this.vel -= Math.abs(0.01*this.vel*Math.sin((this.cursorRotation-this.velRotation) * (Math.PI/180))); //Redo this one. This is very crude.
         
         if(Math.abs(this.cursorRotation-this.velRotation)>=180){
-            console.log('this.cursorRotation: ' + this.cursorRotation);
-            console.log('this.velRotation:before: ' + this.velRotation);
+            //console.log('this.cursorRotation: ' + this.cursorRotation);
+            //console.log('this.velRotation:before: ' + this.velRotation);
             if(this.cursorRotation>this.velRotation) this.velRotation+=360;
             else this.velRotation-=360;
-            console.log('this.velRotation:after: ' + this.velRotation);
+            //console.log('this.velRotation:after: ' + this.velRotation);
         }
         if(this.vel>1){
             this.velRotation = (this.velRotation + ((this.cursorRotation-this.velRotation)*(Math.pow(this.vel, 2.2)/(settings.plane.maxVel+3000))));
@@ -103,7 +111,7 @@
         
 //------//Velocity Y
         this.velY = ((Math.sin(this.velRotation * (Math.PI/180))) * this.vel);
-        if(this.y+settings.plane.height < settings.height-settings.ground.height){
+        if(this.y+settings.plane.height/2 < settings.height-settings.ground.height){
             //if(this.vel<2){
                 //this.velY += (pitch>1) ? 1/pitch : 1/pitch;
                 this.gravity.apply(this);
@@ -143,7 +151,7 @@
             }
             if(!this.landed){
                 this.landed = true;
-                this.landedLeft = (this.rotation > 90);
+                this.landedLeft = (this.rotation > 90) && (this.rotation < 360);
                 console.log('this.rotation: ' + this.rotation);
                 console.log('Left?: ' + this.landedLeft);
             }
@@ -187,14 +195,22 @@
     }
     function mouseDown(){
         if(assets.plane.readyToFire){
-            var bullet = new Bullet(assets.plane.x+((Math.cos(assets.plane.velRotation * (Math.PI/180))) * (assets.plane.width/8)), assets.plane.y+((Math.sin(assets.plane.velRotation * (Math.PI/180))) * (assets.plane.width/8)), assets.plane.velRotation);
+            var bullet = new Bullet(assets.plane.x+((Math.cos(assets.plane.velRotation * (Math.PI/180))) * (assets.plane.width/8)), assets.plane.y+((Math.sin(assets.plane.velRotation * (Math.PI/180))) * (assets.plane.width/8)), assets.plane.velRotation, assets.plane.name);
+            assets.plane.test.shotFrom++;
+            if(assets.plane.test.shotFrom>360) assets.plane.test.shotFrom = 0;
             assets.world.addChild(bullet);
             assets.plane.readyToFire = false;
+            assets.plane.score.bulletsShot++;
             setTimeout(function(){assets.plane.readyToFire = true;}, 60);
         }
     }
     function die(){
-        console.log('Died dead!');
+        console.log('Died dead ' + (this.score.deaths+1) + ' times!');
+        console.log('accuracy: ' + this.score.accuracy);
+        this.score.deaths++;
+        this.score.points += settings.score.multipliers.death;
+        assets.UI.setDeaths(this.score.deaths);
+        assets.UI.setPoints(this.score.points);
         this.x = Math.floor(Math.random()*(settings.width-1000));
         this.y = 3993;
         this.vel = 0;
@@ -210,6 +226,11 @@
     function damage(n){
         this.health -= n;
         assets.UI.setHealth(this.health);
+        if(this.health <= 0){
+            this.die();
+            return true;
+        }
+        else return false;
     }
     window.Plane = Plane;
 } (window));
