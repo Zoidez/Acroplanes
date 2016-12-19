@@ -167,19 +167,22 @@ function getRand(min, max){
             //console.log('pt x: ' + pt.x + ' y: ' + pt.y);
             if((Math.abs(assets.targets[i].x-this.x)<30) && (Math.abs(assets.targets[i].y-this.y))<30){ //Check most events off with a lighter check.
                 if(assets.targets[i].hitTest(this.pt.x, this.pt.y)){
-                    //this.remove();
-                    this.freeze();
+                    if(this.shooter == assets.plane.name){
+                        assets.plane.score.bulletsLanded++;
+                    }
+                    //this.freeze();
                     
                     //----Updating plane.score----//
-                    assets.plane.score.bulletsLanded++;
-                    if(assets.targets[i].damage(settings.bullet.damage)){
+                    
+                    if(assets.targets[i].damage(settings.bullet.damage) && this.shooter == assets.plane.name){
                         assets.plane.score.kills++;
-                        assets.plane.score.points += settings.score.multipliers.kill + 20*assets.plane.score.accuracy;
+                        assets.plane.score.points += Math.floor(settings.score.multipliers.kill + 20*assets.plane.score.accuracy);
                         assets.UI.setKills(assets.plane.score.kills);
-                        assets.UI.setPoints(assets.plane.score.points)
-                    }           
+                        assets.UI.setPoints(assets.plane.score.points);
+                    }
                     //console.log('Bullet x: ' + this.x + ' y: ' + this.y);
                     //console.log('Plane x: ' + assets.targets[i].x + ' y: ' + assets.targets[i].y);
+                    this.remove();
                     console.log('plane-bullet x: ' + (assets.targets[i].x-this.x) + ' y: ' + (assets.targets[i].y-this.y));
                     console.log('plane.rotation: ' + assets.plane.rotation + '\n-------------------------');
                 }

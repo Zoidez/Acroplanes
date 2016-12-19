@@ -1,14 +1,14 @@
 (function(window){
-    function Plane(planeBitmap){
+    function Player(planeBitmap){
         this.initialize(planeBitmap);
     }
-    Plane.prototype = new createjs.Container();
+    Player.prototype = new createjs.Container();
 
-    Plane.prototype.container_initialize = Plane.prototype.initialize;
+    Player.prototype.container_initialize = Player.prototype.initialize;
 
-    Plane.prototype.initialize = function(planeBitmap) {
+    Player.prototype.initialize = function(planeBitmap) {
         this.container_initialize();
-        this.name = 'player';
+        this.name = 'player' + assets.players;
         this.setBounds(0, 0, settings.plane.width, settings.plane.height);
         this.width = settings.plane.width;
         this.height = settings.plane.height/2;
@@ -16,6 +16,10 @@
         this.regY = settings.plane.height/2;
         this.x = Math.floor(Math.random()*(settings.width-1000));
         this.y = 3993;
+        
+        this.x = 500;
+        this.y = 3950;
+        
         this.vel = 0;
         this.velX = 0;
         this.velY = -0;
@@ -44,17 +48,29 @@
         //this.addChild(test);
         this.addChild(planeBitmap);
         assets.tickArray.push(this);
+        this.targetsIndex = assets.length;
         assets.targets.push(this);
         stage.setChildIndex(this, stage.getNumChildren()-1);
+        
+        this.toggleEngine = toggleEngine;
+        window.setTimeout(this.toggleEngine(), 3000);
+        
+        addPlayer();
+        
+        this.fire = fire;
+        this.fireReset = fireReset;
         this.damage = damage;
         this.die = die;
         this.gravity = new Force();
-        this.gravity.apply = function(plane){
-            plane.velY += 0.1;//*Math.abs(((settings.plane.maxVel - Math.abs(plane.velX))/settings.plane.maxVel)-1);
+        this.gravity.apply = function(player){
+            player.velY += 0.1;//*Math.abs(((settings.plane.maxVel - Math.abs(plane.velX))/settings.plane.maxVel)-1);
             //console.log("GravMult: " + Math.abs((settings.plane.maxVel - Math.abs(plane.velX))/settings.plane.maxVel-1));
         }
+        function toggleEngine(){
+            this.engineOn = !this.engineOn;
+        }
     }
-    Plane.prototype.tick = function(){
+    Player.prototype.tick = function(){
 //------//----Testing UI----//
         /*this.test.rotation = -this.velRotation;
         this.test.xLine.set(this.velX, true);
@@ -74,7 +90,7 @@
             }
             else this.cursorRotation = -60;
         }
-        else this.cursorRotation = -Math.atan2(assets.mouse.x - this.x-assets.world.x, assets.mouse.y - this.y-assets.world.y)*180/Math.PI+90;
+        else this.cursorRotation = -Math.atan2(assets.plane.x - this.x, assets.plane.y - this.y)*180/Math.PI+90;
         this.velRotation = -Math.atan2(this.velX, this.velY)*180/Math.PI+90;
         this.vel = Math.sqrt(Math.pow(this.velX, 2) + Math.pow(this.velY, 2));
         this.vel -= Math.abs(0.01*this.vel*Math.sin((this.cursorRotation-this.velRotation) * (Math.PI/180))); //Redo this one. This is very crude.
@@ -152,10 +168,8 @@
             if(!this.landed){
                 this.landed = true;
                 this.landedLeft = (this.rotation > 90) && (this.rotation < 360);
-                console.log('this.rotation: ' + this.rotation);
-                console.log('Left?: ' + this.landedLeft);
             }
-            //constantly set fire to false while on ground in case of of the timeouts set it to 'true'.
+            //constantly set fire to false while on ground in case of the timeouts set it to 'true'.
             this.readyToFire = false;
             if(this.velX < 1){
                 //If plane stopped, keep plane horizontal
@@ -180,37 +194,31 @@
             if(this.landed) this.readyToFire = true;
             this.landed = false;
         }
-        
-        //----Stopped here----//
-        
-        
-        if(assets.mouse.leftButtonDown) mouseDown();
-//------//Moving the world with the plane
-        assets.world.x = canvas.width/2 - this.x;
-        assets.world.y = canvas.height/2 - this.y;
-        if(assets.world.x>0) assets.world.x = 0;
-        if(assets.world.y>0) assets.world.y = 0;
-        if(assets.world.x<canvas.width-settings.width) assets.world.x = canvas.width-settings.width;
-        if(assets.world.y<canvas.height-settings.height) assets.world.y = canvas.height-settings.height;
-    }
-    function mouseDown(){
-        if(assets.plane.readyToFire){
-            var bullet = new Bullet(assets.plane.x+((Math.cos(assets.plane.velRotation * (Math.PI/180))) * (assets.plane.width/8)), assets.plane.y+((Math.sin(assets.plane.velRotation * (Math.PI/180))) * (assets.plane.width/8)), assets.plane.velRotation, assets.plane.name);
-            assets.plane.test.shotFrom++;
-            if(assets.plane.test.shotFrom>360) assets.plane.test.shotFrom = 0;
-            assets.world.addChild(bullet);
-            assets.plane.readyToFire = false;
-            assets.plane.score.bulletsShot++;
-            setTimeout(function(){assets.plane.readyToFire = true;}, settings.bullet.fireRate);
+        if(Math.abs(this.cursorRotation - this.rotation) < 10){
+            this.fire();
+            console.log('Watch out!');
         }
+    }
+    function fire(){
+        if(this.readyToFire){
+            var bullet = new Bullet(this.x+((Math.cos(this.velRotation * (Math.PI/180))) * (this.width/8)), this.y+((Math.sin(this.velRotation * (Math.PI/180))) * (this.width/8)), this.velRotation, this.name);
+            //assets.plane.test.shotFrom++;
+            //if(assets.plane.test.shotFrom>360) assets.plane.test.shotFrom = 0;
+            assets.world.addChild(bullet);
+            this.readyToFire = false;
+            //this.score.bulletsShot++;
+            window.setTimeout(this.fireReset(), settings.plane.fireRate);
+        }
+    }
+    function fireReset(){
+        this.readyToFire = true;
     }
     function die(){
         console.log('Died dead ' + (this.score.deaths+1) + ' times!');
-        console.log('accuracy: ' + this.score.accuracy);
-        this.score.deaths++;
-        this.score.points += settings.score.multipliers.death;
-        assets.UI.setDeaths(this.score.deaths);
-        assets.UI.setPoints(this.score.points);
+        //this.score.deaths++;
+        this.score.points += Math.floor(settings.score.multipliers.death);
+        //assets.UI.setDeaths(this.score.deaths);
+        //assets.UI.setPoints(this.score.points);
         this.x = Math.floor(Math.random()*(settings.width-1000));
         this.y = 3993;
         this.vel = 0;
@@ -218,19 +226,16 @@
         this.velY = -0;
         this.rotation = 0;
         this.velRotation = 0;
-        this.engineOn = false;
+        this.engineOn = true;
         this.health = 100;
-        assets.UI.setHealth(100);
-        assets.UI.setEngineLight(false);
+        //assets.UI.setHealth(100);
+        //assets.UI.setEngineLight(false);
     }
     function damage(n){
         this.health -= n;
-        assets.UI.setHealth(this.health);
-        if(this.health <= 0){
-            this.die();
-            return true;
-        }
-        else return false;
+        //assets.UI.setHealth(this.health);
+        if(this.health <= 0) this.die();
+        return false;
     }
-    window.Plane = Plane;
+    window.Player = Player;
 } (window));

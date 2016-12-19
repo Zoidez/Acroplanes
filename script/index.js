@@ -30,9 +30,9 @@ settings.plane.width = 60;
 settings.plane.height = 13;
 settings.plane.maxVel = 15;
 settings.plane.takeOffVel = 8;
+settings.plane.fireRate = 30; //Measured in microseconds - period between two shots.
 settings.bullet.radius = 2;
 settings.bullet.speed = 30;
-settings.bullet.fireRate = 60; //Measured in microseconds - period between two shots.
 settings.bullet.lifetime = 20000; //in microseconds.
 settings.bullet.damage = 15;
 settings.UI.font = "17px Arial";
@@ -51,6 +51,7 @@ assets.targets = [];
 assets.tickArray = [];  //Careful, no check for the presence of the tick function. You gotta make sure you don't push an object without tick() in here.
 assets.mouse.x = 0;
 assets.mouse.y = 0;
+assets.players = 0;
 
 function init(){
     fixCanvas();
@@ -67,6 +68,8 @@ function init(){
     stage.addChild(userInterface);
     assets.UI = userInterface;
     
+    addPlayer();
+        
     stage.on('stagemousemove', function(e){
         assets.mouse.x = e.rawX;
         assets.mouse.y = e.rawY;
@@ -105,6 +108,7 @@ function loadAssets(){
     assets.cloudImage[2] = new Image();
     assets.cloudImage[3] = new Image();
     assets.planeImage = new Image();
+    assets.playerImage = new Image();
     assets.groundImage.onload = onGroundImageLoad;
     assets.groundImage.isLoaded = false;
     assets.atmosphereImage.onload = onAtmosphereImageLoad;
@@ -113,6 +117,7 @@ function loadAssets(){
     assets.cloudImage[2].onload = onCloudImageLoad;
     assets.cloudImage[3].onload = onCloudImageLoad;
     assets.planeImage.onload = onPlaneImageLoad;
+    assets.playerImage.onload = onPlayerImageLoad;
     assets.cloudImage[0].isLoaded = false;
     assets.cloudImage[1].isLoaded = false;
     assets.cloudImage[2].isLoaded = false;
@@ -124,6 +129,7 @@ function loadAssets(){
     assets.cloudImage[2].src = './img/world_cloud3.png';
     assets.cloudImage[3].src = './img/world_cloud4.png';
     assets.planeImage.src = './img/plane.png';
+    assets.playerImage.src = './img/plane.png';
 }
 function onGroundImageLoad(e){
     var groundShape = new createjs.Shape();
@@ -169,6 +175,35 @@ function onPlaneImageLoad(e){
     var plane = new Plane(planeBitmap);
     assets.plane = plane;
     assets.world.addChild(plane);
+}
+function addPlayer(){
+    var created = false;
+    while(!created){
+    if(!(typeof assets.playerBitmap == 'undefined')){
+        console.log('Adding another player!');
+        var player = new Player(assets.playerBitmap);
+        assets.world.addChild(player);
+        created = true;
+    }
+    }
+}
+function onPlayerImageLoad(e){
+//function addPlayer(){
+    if(!(typeof assets.playerImage == 'undefined')){
+        assets.playerBitmap = new createjs.Bitmap(assets.playerImage);
+        /*var player = new Player(playerBitmap);
+        assets.world.addChild(player);*/
+    }
+    //var playerShape = new createjs.Shape();
+    //playerShape.graphics = new createjs.Graphics();
+    
+    /*playerShape.graphics.drawRect(100, 100, settings.width, settings.height-settings.ground.height);
+    playerShape.name = 'atmosphere';
+    
+    assets.world.addChild(playerShape);
+    assets.groundImage.isLoaded = true;
+    stage.update();*/
+    //else setTimeout(addPlayer(), 100);
 }
 function keyDown(e){
     if(e.keyCode == 81 && !(typeof assets.plane == 'undefined')){
