@@ -17,8 +17,8 @@
         this.x = Math.floor(Math.random()*(settings.width-1000));
         this.y = 3993;
         
-        this.x = 500;
-        this.y = 3950;
+        //this.x = 500;
+        //this.y = 3950;
         
         this.vel = 0;
         this.velX = 0;
@@ -26,39 +26,40 @@
         this.rotation = 0;
         this.velRotation = 0;
         this.cursorRotation = 0;
+        this.offsetRotation = 0;
+        this.offsetCurrent = 0;
         this.health = 100;
         this.engineOn = false;
         this.landed = true;
         this.landedLeft = false;
         this.readyToFire = false;
-        this.score = new Object();
-        this.score.points = 0;  //Your points for taking down planes and whatnot
-        this.score.deaths = 0;  //The number of your deaths (!)this round
-        this.score.kills = 0;   //The number of planes taken down
-        this.score.accuracy = 0.5;  //How good you are. Each time you shoot, this number changes (theoretically)
-        this.score.bulletsShot = 0; //How many bullets you have fired
-        this.score.bulletsLanded = 0; //How many have hit the (a) target
+        this.recoveredPiket = false;
+        //this.score = new Object();
+        //this.score.points = 0;  //Your points for taking down planes and whatnot
+        //this.score.deaths = 0;  //The number of your deaths (!)this round
+        //this.score.kills = 0;   //The number of planes taken down
+        //this.score.accuracy = 0.5;  //How good you are. Each time you shoot, this number changes (theoretically)
+        //this.score.bulletsShot = 0; //How many bullets you have fired
+        //this.score.bulletsLanded = 0; //How many have hit the (a) target
         //this.addEventListener("click", function(event) { alert("clicked"); })
-        var test = new TestUI();
-        test.name = 'test';
-        test.x = settings.plane.width/2;
-        test.y = settings.plane.height/2;
-        this.test = test;
-        this.test.shotFrom = 0;
+        //var test = new TestUI();
+        //test.name = 'test';
+        //test.x = settings.plane.width/2;
+        //test.y = settings.plane.height/2;
+        //this.test = test;
+        //this.test.shotFrom = 0;
         //this.addChild(test);
         this.addChild(planeBitmap);
         assets.tickArray.push(this);
         this.targetsIndex = assets.length;
         assets.targets.push(this);
         stage.setChildIndex(this, stage.getNumChildren()-1);
-        
+        var thisPlayer = this;
         this.toggleEngine = toggleEngine;
-        window.setTimeout(this.toggleEngine(), 3000);
-        
-        addPlayer();
-        
+        window.setTimeout(function(){thisPlayer.toggleEngine()}, 3000);
+        window.setTimeout(console.log('Engine starts.'), 3000);
+        this.offset = offset;
         this.fire = fire;
-        this.fireReset = fireReset;
         this.damage = damage;
         this.die = die;
         this.gravity = new Force();
@@ -84,16 +85,22 @@
 //------//----Rotating the plane----//
         //Pointing the nose down to the ground causes the plane to explode on runway.
         //Pointing the nose to the 60^ makes the plane run on the ground without dying.
-        if(this.landed){
+        if(this.y+this.height < settings.height-settings.ground.height-settings.AI.recoveredPiketHeight){
+            this.recoveredPiket = true;
+        }
+        if(this.landed || (this.y+this.height > settings.height-settings.ground.height-settings.AI.minFlyHeight) || !this.recoveredPiket){
             if(this.velRotation > 90){
                 this.cursorRotation = 240;
             }
             else this.cursorRotation = -60;
         }
-        else this.cursorRotation = -Math.atan2(assets.plane.x - this.x, assets.plane.y - this.y)*180/Math.PI+90;
+        else{
+            this.cursorRotation = -Math.atan2(assets.plane.x - this.x, assets.plane.y - this.y)*180/Math.PI+90;
+            if(this.y+this.height > settings.height-settings.ground.height-settings.AI.minFlyHeight-3) this.recoveredPiket = false;
+        }
         this.velRotation = -Math.atan2(this.velX, this.velY)*180/Math.PI+90;
         this.vel = Math.sqrt(Math.pow(this.velX, 2) + Math.pow(this.velY, 2));
-        this.vel -= Math.abs(0.01*this.vel*Math.sin((this.cursorRotation-this.velRotation) * (Math.PI/180))); //Redo this one. This is very crude.
+        this.vel -= Math.abs(0.01*this.vel*Math.sin((this.cursorRotation-this.velRotation + (this.offset())) * (Math.PI/180))); //Redo this one. This is very crude.
         
         if(Math.abs(this.cursorRotation-this.velRotation)>=180){
             //console.log('this.cursorRotation: ' + this.cursorRotation);
@@ -194,29 +201,40 @@
             if(this.landed) this.readyToFire = true;
             this.landed = false;
         }
-        if(Math.abs(this.cursorRotation - this.rotation) < 10){
-            this.fire();
-            console.log('Watch out!');
+        if(Math.abs(this.cursorRotation - this.rotation) < 10 && this.recoveredPiket){
+            //this.fire();
+        }
+    }
+    function offset(){
+        if(this.offsetCurrent == this.offsetRotation){
+            this.offsetRotation = Math.floor(Math.random()*(90)-45);
+            console.log('Offset: ' + this.offsetRotation);
+        }
+        if(this.offsetCurrent < this.offsetRotation){
+            console.log('Offset current: ' + this.offsetCurrent);
+            return this.offsetCurrent++;
+        }
+        else{
+            console.log('Offset current: ' + this.offsetCurrent);
+            return this.offsetCurrent--;
         }
     }
     function fire(){
         if(this.readyToFire){
             var bullet = new Bullet(this.x+((Math.cos(this.velRotation * (Math.PI/180))) * (this.width/8)), this.y+((Math.sin(this.velRotation * (Math.PI/180))) * (this.width/8)), this.velRotation, this.name);
-            //assets.plane.test.shotFrom++;
-            //if(assets.plane.test.shotFrom>360) assets.plane.test.shotFrom = 0;
+            assets.plane.test.shotFrom++;
+            if(assets.plane.test.shotFrom>360) assets.plane.test.shotFrom = 0;
             assets.world.addChild(bullet);
             this.readyToFire = false;
-            //this.score.bulletsShot++;
-            window.setTimeout(this.fireReset(), settings.plane.fireRate);
+            this.score.bulletsShot++;
+            var playerReference = this;
+            window.setTimeout(function(){playerReference.readyToFire = true;}, settings.plane.fireRate);
         }
     }
-    function fireReset(){
-        this.readyToFire = true;
-    }
     function die(){
-        console.log('Died dead ' + (this.score.deaths+1) + ' times!');
+        console.log(this.name + ' died.');
         //this.score.deaths++;
-        this.score.points += Math.floor(settings.score.multipliers.death);
+        //this.score.points += Math.floor(settings.score.multipliers.death);
         //assets.UI.setDeaths(this.score.deaths);
         //assets.UI.setPoints(this.score.points);
         this.x = Math.floor(Math.random()*(settings.width-1000));
@@ -234,8 +252,11 @@
     function damage(n){
         this.health -= n;
         //assets.UI.setHealth(this.health);
-        if(this.health <= 0) this.die();
-        return false;
+        if(this.health <= 0){
+            this.die();
+            return true;
+        }
+        else return false;
     }
     window.Player = Player;
 } (window));

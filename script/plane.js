@@ -201,7 +201,8 @@
             assets.world.addChild(bullet);
             assets.plane.readyToFire = false;
             assets.plane.score.bulletsShot++;
-            setTimeout(function(){assets.plane.readyToFire = true;}, settings.bullet.fireRate);
+            
+            window.setTimeout(function(){assets.plane.readyToFire = true;}, settings.plane.fireRate);
         }
     }
     function die(){

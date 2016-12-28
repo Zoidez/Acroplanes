@@ -13,6 +13,7 @@ settings.plane = new Object();
 settings.bullet = new Object();
 settings.UI = new Object();
 settings.score = new Object();
+settings.AI = new Object();
 settings.score.multipliers = new Object();
 settings.width = 5000;
 settings.height = 4500;
@@ -34,11 +35,13 @@ settings.plane.fireRate = 30; //Measured in microseconds - period between two sh
 settings.bullet.radius = 2;
 settings.bullet.speed = 30;
 settings.bullet.lifetime = 20000; //in microseconds.
-settings.bullet.damage = 15;
+settings.bullet.damage = 7;
 settings.UI.font = "17px Arial";
 settings.UI.fontColor = "#ffffff";
 settings.score.multipliers.death = -40; //Change to apply through +=
 settings.score.multipliers.kill = 80;
+settings.AI.minFlyHeight = 100;
+settings.AI.recoveredPiketHeight = 500;
 //----End of settings----//
 
 //----Assets are to keep the objects you need at hand----//
@@ -52,6 +55,7 @@ assets.tickArray = [];  //Careful, no check for the presence of the tick functio
 assets.mouse.x = 0;
 assets.mouse.y = 0;
 assets.players = 0;
+assets.playersToAdd = 1;
 
 function init(){
     fixCanvas();
@@ -68,7 +72,7 @@ function init(){
     stage.addChild(userInterface);
     assets.UI = userInterface;
     
-    addPlayer();
+    
         
     stage.on('stagemousemove', function(e){
         assets.mouse.x = e.rawX;
@@ -118,6 +122,7 @@ function loadAssets(){
     assets.cloudImage[3].onload = onCloudImageLoad;
     assets.planeImage.onload = onPlaneImageLoad;
     assets.playerImage.onload = onPlayerImageLoad;
+    assets.playerImage.isLoaded = false;
     assets.cloudImage[0].isLoaded = false;
     assets.cloudImage[1].isLoaded = false;
     assets.cloudImage[2].isLoaded = false;
@@ -171,39 +176,31 @@ function initializeClouds(){
     }
 }
 function onPlaneImageLoad(e){
+    assets.planeImage.shadow = new createjs.Shadow("#000000", 5, 5, 10);
     var planeBitmap = new createjs.Bitmap(assets.planeImage);
     var plane = new Plane(planeBitmap);
     assets.plane = plane;
     assets.world.addChild(plane);
 }
 function addPlayer(){
-    var created = false;
-    while(!created){
-    if(!(typeof assets.playerBitmap == 'undefined')){
-        console.log('Adding another player!');
-        var player = new Player(assets.playerBitmap);
+    if(assets.playerImage.isLoaded == true){
+        var playerBitmap = new createjs.Bitmap(assets.playerImage);
+        var player = new Player(playerBitmap);
         assets.world.addChild(player);
-        created = true;
+        console.log('Player added!');
     }
-    }
+    else assets.playersToAdd++;
 }
 function onPlayerImageLoad(e){
-//function addPlayer(){
-    if(!(typeof assets.playerImage == 'undefined')){
-        assets.playerBitmap = new createjs.Bitmap(assets.playerImage);
-        /*var player = new Player(playerBitmap);
-        assets.world.addChild(player);*/
+    console.log('Players to add: ' + assets.playersToAdd);
+    //assets.playerBitmap = new createjs.Bitmap(assets.playerImage);
+    assets.playerImage.isLoaded = true;
+    for(var i=0; i<assets.playersToAdd; i++){
+        console.log('Adding a player.');
+        addPlayer();
     }
-    //var playerShape = new createjs.Shape();
-    //playerShape.graphics = new createjs.Graphics();
     
-    /*playerShape.graphics.drawRect(100, 100, settings.width, settings.height-settings.ground.height);
-    playerShape.name = 'atmosphere';
-    
-    assets.world.addChild(playerShape);
-    assets.groundImage.isLoaded = true;
-    stage.update();*/
-    //else setTimeout(addPlayer(), 100);
+    assets.playersToAdd = 0;
 }
 function keyDown(e){
     if(e.keyCode == 81 && !(typeof assets.plane == 'undefined')){

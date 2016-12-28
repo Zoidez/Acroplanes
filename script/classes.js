@@ -183,8 +183,7 @@ function getRand(min, max){
                     //console.log('Bullet x: ' + this.x + ' y: ' + this.y);
                     //console.log('Plane x: ' + assets.targets[i].x + ' y: ' + assets.targets[i].y);
                     this.remove();
-                    console.log('plane-bullet x: ' + (assets.targets[i].x-this.x) + ' y: ' + (assets.targets[i].y-this.y));
-                    console.log('plane.rotation: ' + assets.plane.rotation + '\n-------------------------');
+                    console.log(assets.targets[i].name + ' is hit. Health: ' + assets.targets[i].health);
                 }
             }
         }
