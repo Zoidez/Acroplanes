@@ -198,24 +198,24 @@
             }
         }
         else{
-            if(this.landed) this.readyToFire = true;
+            if(this.landed) console.log('Firing!');//this.readyToFire = true;
             this.landed = false;
         }
         if(Math.abs(this.cursorRotation - this.rotation) < 10 && this.recoveredPiket){
-            //this.fire();
+            this.fire();
         }
     }
     function offset(){
         if(this.offsetCurrent == this.offsetRotation){
             this.offsetRotation = Math.floor(Math.random()*(90)-45);
-            console.log('Offset: ' + this.offsetRotation);
+            //console.log('Offset: ' + this.offsetRotation);
         }
         if(this.offsetCurrent < this.offsetRotation){
-            console.log('Offset current: ' + this.offsetCurrent);
+            //console.log('Offset current: ' + this.offsetCurrent);
             return this.offsetCurrent++;
         }
         else{
-            console.log('Offset current: ' + this.offsetCurrent);
+            //console.log('Offset current: ' + this.offsetCurrent);
             return this.offsetCurrent--;
         }
     }

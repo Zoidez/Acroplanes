@@ -163,11 +163,11 @@ function getRand(min, max){
 //------//----Collision check----//
         if(this.x<0 || this.y<0 || this.x>settings.width || this.y+this.height>settings.height-settings.ground.height) this.remove();
         for(var i = 0; i<assets.targets.length; i++){
-            this.pt = this.localToLocal(0, 0, assets.targets[i]);
-            //console.log('pt x: ' + pt.x + ' y: ' + pt.y);
+            var pt = this.localToLocal(0, 0, assets.targets[i]);
             if((Math.abs(assets.targets[i].x-this.x)<30) && (Math.abs(assets.targets[i].y-this.y))<30){ //Check most events off with a lighter check.
-                if(assets.targets[i].hitTest(this.pt.x, this.pt.y)){
+                if(assets.targets[i].hitTest(pt.x, pt.y)){
                     if(this.shooter == assets.plane.name){
+            console.log('pt x: ' + pt.x + ' y: ' + pt.y);
                         assets.plane.score.bulletsLanded++;
                     }
                     //this.freeze();
