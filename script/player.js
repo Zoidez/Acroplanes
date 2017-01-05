@@ -198,7 +198,7 @@
             }
         }
         else{
-            if(this.landed) console.log('Firing!');//this.readyToFire = true;
+            if(this.landed) this.readyToFire = true;
             this.landed = false;
         }
         if(Math.abs(this.cursorRotation - this.rotation) < 10 && this.recoveredPiket){
@@ -222,11 +222,11 @@
     function fire(){
         if(this.readyToFire){
             var bullet = new Bullet(this.x+((Math.cos(this.velRotation * (Math.PI/180))) * (this.width/8)), this.y+((Math.sin(this.velRotation * (Math.PI/180))) * (this.width/8)), this.velRotation, this.name);
-            assets.plane.test.shotFrom++;
-            if(assets.plane.test.shotFrom>360) assets.plane.test.shotFrom = 0;
+            //assets.plane.test.shotFrom++;
+            //if(assets.plane.test.shotFrom>360) assets.plane.test.shotFrom = 0;
             assets.world.addChild(bullet);
             this.readyToFire = false;
-            this.score.bulletsShot++;
+            //this.score.bulletsShot++;
             var playerReference = this;
             window.setTimeout(function(){playerReference.readyToFire = true;}, settings.plane.fireRate);
         }
